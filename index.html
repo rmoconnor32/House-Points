@@ -4,15 +4,75 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>House Points Tracker</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    /* CSS for styling the app */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    #houses {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .house {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      border-radius: 8px;
+      width: 150px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #fff;
+      color: #333;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #ddd;
+    }
+
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 80%;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
   <h1>House Points Tracker</h1>
   
   <!-- Weekly Points Section -->
-  <div id="houses">
-    <!-- Buttons for each house will be generated here -->
-  </div>
+  <div id="houses"></div>
 
   <!-- Quarterly Points Table -->
   <h2>Quarterly Points</h2>
@@ -28,7 +88,96 @@
     </tbody>
   </table>
 
-  <script src="script.js"></script>
+  <script>
+    // JavaScript for functionality
+    const houses = [
+      { name: "Bravery", color: "yellow", weekly: 0, quarterly: 0 },
+      { name: "Fortitude", color: "green", weekly: 0, quarterly: 0 },
+      { name: "Integrity", color: "red", weekly: 0, quarterly: 0 },
+      { name: "Philanthropy", color: "purple", weekly: 0, quarterly: 0 },
+      { name: "Wisdom", color: "blue", weekly: 0, quarterly: 0 },
+    ];
+
+    // Render houses
+    function renderHouses() {
+      const housesDiv = document.getElementById("houses");
+      housesDiv.innerHTML = "";
+
+      houses.forEach((house, index) => {
+        const houseDiv = document.createElement("div");
+        houseDiv.className = "house";
+        houseDiv.style.backgroundColor = house.color;
+        houseDiv.innerHTML = `
+          <h3>${house.name}</h3>
+          <p>Weekly Points: <strong>${house.weekly}</strong></p>
+          <button onclick="addPoints(${index}, 1)">+1</button>
+          <button onclick="addPoints(${index}, 3)">+3</button>
+          <button onclick="addPoints(${index}, 5)">+5</button>
+        `;
+        housesDiv.appendChild(houseDiv);
+      });
+    }
+
+    // Render quarterly points table
+    function renderQuarterlyTable() {
+      const tbody = document.querySelector("#quarterly-table tbody");
+      tbody.innerHTML = "";
+
+      houses.forEach((house) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${house.name}</td>
+          <td>${house.quarterly}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Add points to a house
+    function addPoints(houseIndex, points) {
+      const house = houses[houseIndex];
+      house.weekly += points;
+      house.quarterly += points;
+
+      playSound();
+      renderHouses();
+      renderQuarterlyTable();
+    }
+
+    // Play the Mario coin sound
+    function playSound() {
+      const audio = new Audio("https://freesound.org/data/previews/341/341695_5121236-lq.mp3");
+      audio.play();
+    }
+
+    // Reset weekly points every Sunday
+    function resetWeeklyPoints() {
+      const today = new Date();
+      if (today.getDay() === 0) { // 0 = Sunday
+        houses.forEach((house) => {
+          house.weekly = 0;
+        });
+        renderHouses();
+      }
+    }
+
+    // Reset quarterly points at the end of the quarter
+    function resetQuarterlyPoints() {
+      const today = new Date();
+      const month = today.getMonth();
+      if ([2, 5, 8, 11].includes(month)) { // End of quarter months: March, June, September, December
+        houses.forEach((house) => {
+          house.quarterly = 0;
+        });
+        renderQuarterlyTable();
+      }
+    }
+
+    // Initial render
+    renderHouses();
+    renderQuarterlyTable();
+    setInterval(resetWeeklyPoints, 1000 * 60 * 60 * 24); // Check weekly reset daily
+    setInterval(resetQuarterlyPoints, 1000 * 60 * 60 * 24); // Check quarterly reset daily
+  </script>
 </body>
 </html>
-
